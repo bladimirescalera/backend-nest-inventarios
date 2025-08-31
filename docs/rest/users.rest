@@ -1,0 +1,11 @@
+GET http://127.0.0.1:3000/users
+
+### Guardar user
+POST http://127.0.0.1:3000/users
+Content-Type: application/json
+
+{
+    "name": "juan",
+    "email": "juan@mail.com",
+    "password": "juan54321"
+}
