@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -14,11 +15,29 @@ export class UsersService {
 
   }
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     console.log("GUARDANDO EN SERVICIO...", createUserDto);
-    const nuevoUser=this.userRepository.create(createUserDto);
-    this.userRepository.save(nuevoUser);
-    return nuevoUser;
+    const existeName = await this.userRepository.findOne({where:{name: createUserDto.name}})
+    if(existeName){
+      throw new BadRequestException(`El name ${createUserDto.name}, ya esta en uso`);
+    }
+
+    const existeEmail = await this.userRepository.findOne({where:{email: createUserDto.email}})
+    if(existeEmail){
+      throw new BadRequestException(`El email ${createUserDto.email}, ya esta en uso`);
+    }
+
+    //const nuevoUser=this.userRepository.create(createUserDto);
+
+    // encriptar
+    const hashPassword= await bcrypt.hash(createUserDto.password,12);
+    const newUser=this.userRepository.create({
+      name:createUserDto.name,
+      email:createUserDto.email,
+      password:hashPassword
+    });  
+    this.userRepository.save(newUser);
+    return newUser;
   }
 
   findAll() {
@@ -29,6 +48,13 @@ export class UsersService {
     const user=await this.userRepository.findOneBy({id})
     if(!user) throw new NotFoundException("El usuario no existe");
     return user;
+  }
+
+  async findOneByEmail(email:string){
+    const user=await this.userRepository.findOneBy({email:email});
+    if(!user) throw new NotFoundException(`El usuario con email: ${email} no existe`);
+    return user;
+
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

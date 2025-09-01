@@ -5,7 +5,24 @@ POST http://127.0.0.1:3000/users
 Content-Type: application/json
 
 {
-    "name": "juan",
-    "email": "juan@mail.com",
-    "password": "juan54321"
+    "name": "admin1",
+    "email": "admin1@mail.com",
+    "password": "admin54321"
 }
+
+### Mostrar
+GET http://127.0.0.1:3000/users/a1d71306-acc2-4076-900f-e7b85e2e8aee
+
+
+### Modificar
+PATCH  http://127.0.0.1:3000/users/a1d71306-acc2-4076-900f-e7b85e2e8aee
+Content-Type: application/json
+
+{
+    "name": "juancito",
+    "email": "juancito@mail.com"    
+}
+
+### Eliminar
+DELETE http://127.0.0.1:3000/users/fa9494b7-e967-41b0-8c94-d07e168389d5
+
